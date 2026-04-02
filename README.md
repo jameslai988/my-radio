@@ -1,2 +1,2 @@
 # my-radio
-my glogal radion player
+my global radion player
