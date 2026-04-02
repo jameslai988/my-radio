@@ -1233,6 +1233,11 @@
                 const data = await fetchWithRetry(`${API_BASE}/stations/bycountrycodeexact/${countryCode}`);
                 console.log(`收到 ${data.length} 個電台`);
                 
+                // 調試：顯示前3個電台的國家
+                if (data.length > 0) {
+                    console.log('前3個電台:', data.slice(0, 3).map(s => `${s.name} (${s.country})`));
+                }
+                
                 if (data.length === 0) {
                     stationsGrid.innerHTML = `
                         <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px; color: #00ffff;">
@@ -1246,9 +1251,12 @@
                     `;
                     showToast('⚠️ 此國家沒有可用電台');
                 } else {
+                    console.log('更新全局變量 stations 和 filteredStations');
                     stations = data;
                     filteredStations = data;
+                    console.log('開始渲染電台...');
                     renderStations(data);
+                    console.log('渲染完成');
                     showToast(`✅ 已載入 ${data.length} 個電台`);
                 }
             } catch (error) {
@@ -1296,6 +1304,11 @@
 
         // 渲染電台列表
         function renderStations(stationList) {
+            console.log(`renderStations 收到 ${stationList.length} 個電台`);
+            if (stationList.length > 0) {
+                console.log('第一個電台:', stationList[0].name, '-', stationList[0].country);
+            }
+            
             // 先保存電台數據到全局變量
             window.stationsData = {};
             
