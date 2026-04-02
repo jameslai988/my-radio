@@ -1281,25 +1281,33 @@
             loading.classList.add('hidden');
         }
 
-        // 搜尋電台
-        async function searchStations(query) {
+        // 搜尋電台（在當前載入的電台列表中搜尋）
+        function searchStations(query) {
             if (!query.trim()) {
+                // 空搜尋 = 顯示所有當前國家的電台
                 filteredStations = stations;
                 renderStations(stations);
                 return;
             }
             
-            loading.classList.remove('hidden');
-            try {
-                const data = await fetchWithRetry(`${API_BASE}/stations/byname/${encodeURIComponent(query)}`);
-                filteredStations = data;
-                renderStations(data);
-                showToast(`🔍 找到 ${data.length} 個電台`);
-            } catch (error) {
-                console.error('搜尋失敗:', error);
-                showToast('❌ 搜尋失敗');
+            console.log(`在 ${stations.length} 個電台中搜尋: "${query}"`);
+            
+            // 在當前載入的電台列表中本地過濾
+            const lowerQuery = query.toLowerCase();
+            filteredStations = stations.filter(station => {
+                return station.name.toLowerCase().includes(lowerQuery) ||
+                       (station.tags && station.tags.toLowerCase().includes(lowerQuery)) ||
+                       (station.country && station.country.toLowerCase().includes(lowerQuery));
+            });
+            
+            console.log(`找到 ${filteredStations.length} 個符合的電台`);
+            renderStations(filteredStations);
+            
+            if (filteredStations.length === 0) {
+                showToast(`❌ 沒有找到包含 "${query}" 的電台`);
+            } else {
+                showToast(`🔍 找到 ${filteredStations.length} 個電台`);
             }
-            loading.classList.add('hidden');
         }
 
         // 渲染電台列表
@@ -1312,7 +1320,7 @@
             // 先保存電台數據到全局變量
             window.stationsData = {};
             
-            stationsGrid.innerHTML = stationList.slice(0, 50).map(station => {
+            stationsGrid.innerHTML = stationList.map(station => {  // ✅ 顯示所有電台，不限制數量
                 const isActive = currentStation?.stationuuid === station.stationuuid;
                 const isFav = isFavorite(station);
                 
