@@ -1354,12 +1354,16 @@
         }
         
         // 添加事件監聽器（事件委託）
+        let stationClickHandler = null;
+        
         function addStationEventListeners() {
-            // 移除舊的監聽器
-            stationsGrid.replaceWith(stationsGrid.cloneNode(true));
-            const newGrid = document.getElementById('stationsGrid');
+            // 移除舊的監聽器（如果存在）
+            if (stationClickHandler) {
+                stationsGrid.removeEventListener('click', stationClickHandler);
+            }
             
-            newGrid.addEventListener('click', (e) => {
+            // 創建新的事件處理器
+            stationClickHandler = (e) => {
                 // 處理收藏按鈕點擊
                 const favBtn = e.target.closest('.station-fav-btn');
                 if (favBtn) {
@@ -1381,7 +1385,10 @@
                         playStation(station);
                     }
                 }
-            });
+            };
+            
+            // 添加新的監聽器
+            stationsGrid.addEventListener('click', stationClickHandler);
         }
 
         // 初始化 Audio Context
